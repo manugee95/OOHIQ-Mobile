@@ -1,0 +1,57 @@
+import React from "react";
+import { View } from "react-native";
+import AppText from "@/src/components/shared/AppText";
+import AppButton from "@/src/components/shared/AppButton";
+import { useVideoPlayer, VideoView } from "expo-video";
+import { ScrollView } from "react-native-gesture-handler";
+
+interface RecordVideoProps {
+	startRecording: () => void;
+	videoSource: string | null;
+}
+
+export default function RecordVideo({
+	startRecording,
+	videoSource,
+}: RecordVideoProps) {
+	const player = useVideoPlayer(videoSource, (player) => {
+		player.play();
+	});
+
+	return (
+		<ScrollView>
+			<View className="mt-[30px] gap-y-[20px]  px-[15px] pb-[20px]">
+				<View className="w-full gap-y-[20px]">
+					<View className="gap-y-[5px]">
+						<AppText className="text-[17px]" weight="Medium">
+							Video Recording
+						</AppText>
+						<AppText className="text-[14px] text-[#8d8d8d]">
+							Please capture a Straight-On View of the Billboard. The camera
+							should face the billboard directly, and the edges should appear
+							straight and symmetrical.
+						</AppText>
+					</View>
+				</View>
+				{videoSource && (
+					<VideoView
+						style={{ width: "100%", height: 500 }}
+						contentFit="cover"
+						player={player}
+						allowsFullscreen
+						allowsPictureInPicture
+					/>
+				)}
+				<AppButton
+					onPress={async () => {
+						player.pause();
+						startRecording();
+					}}>
+					<AppText className="text-[17px]" weight="Medium">
+						{!videoSource ? "Start Recording" : "Record Again"}
+					</AppText>
+				</AppButton>
+			</View>
+		</ScrollView>
+	);
+}

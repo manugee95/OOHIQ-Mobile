@@ -1,0 +1,139 @@
+import React from "react";
+import { Formik, FormikHelpers } from "formik";
+import AppButton from "@/src/components/shared/AppButton";
+import AppInput from "@/src/components/shared/form/AppInput";
+import AppText from "@/src/components/shared/AppText";
+import { View } from "react-native";
+import * as Yup from "yup";
+import { router } from "expo-router";
+import ApiInstance from "@/src/utils/api-instance";
+import { AxiosError } from "axios";
+import useToast from "@/src/hooks/useToast";
+import Loader from "@/src/components/shared/Loader";
+import * as SecureStore from "expo-secure-store";
+import useRootStore from "@/src/hooks/stores/useRootstore";
+
+const schema = Yup.object().shape({
+	email: Yup.string()
+		.required()
+		.email("Provide a valid email address")
+		.label("Email"),
+	fullName: Yup.string().required().label("Full Name"),
+	password: Yup.string().required().label("Password"),
+	confirmPassword: Yup.string().required().label("Password"),
+	role: Yup.string().required().label("Role"),
+});
+
+export interface SignupData {
+	email: string;
+	fullName: string;
+	password: string;
+	role: "FIELD_AUDITOR";
+	confirmPassword: string;
+}
+
+export default function SignupForm() {
+	const initialValues: SignupData = {
+		email: "",
+		fullName: "",
+		password: "",
+		role: "FIELD_AUDITOR",
+		confirmPassword: "",
+	};
+
+	const showAndHideToast = useToast();
+	const { setIsAuthenticated } = useRootStore();
+
+	const handleSubmit = async (
+		values: SignupData,
+		{ setSubmitting }: FormikHelpers<SignupData>
+	) => {
+		try {
+			if (values.password !== values.confirmPassword) {
+				throw new Error("Passwords do not match");
+			}
+
+			const response = await ApiInstance.post("/signup", values);
+			console.log(response.data);
+			await SecureStore.setItemAsync(
+				"credentials",
+				JSON.stringify({
+					accessToken: response.data.token,
+				})
+			);
+			setIsAuthenticated(true);
+			router.replace("/dashboard");
+			showAndHideToast(response.data.message, "success");
+		} catch (error) {
+			// @ts-ignore
+			const err: AxiosError = error;
+			// @ts-ignore
+			showAndHideToast(err.response?.data?.message ?? err.message, "error");
+			setSubmitting(false);
+		}
+	};
+
+	return (
+		<Formik
+			initialValues={initialValues}
+			onSubmit={handleSubmit}
+			validationSchema={schema}>
+			{({
+				handleSubmit,
+				values,
+				isSubmitting,
+				isValidating,
+				errors,
+				setFieldValue,
+			}) => (
+				<View className="px-[10px] gap-[15px]">
+					<AppInput
+						label="Full Name"
+						className="!bg-white"
+						placeholder="Full Name"
+						errorMessage={errors.fullName}
+						value={values.fullName}
+						onChange={(val) => setFieldValue("fullName", val)}
+					/>
+					<AppInput
+						label="Email Address"
+						className="!bg-white"
+						placeholder="Email Address"
+						errorMessage={errors.email}
+						value={values.email}
+						onChange={(val) => setFieldValue("email", val)}
+					/>
+					<AppInput.ForPassword
+						label="Password"
+						className="!bg-white"
+						placeholder="Password"
+						errorMessage={errors.password}
+						value={values.password}
+						onChange={(val) => setFieldValue("password", val)}
+					/>
+					<AppInput.ForPassword
+						label="Confirm Password"
+						className="!bg-white"
+						placeholder="Confirm Password"
+						errorMessage={errors.confirmPassword}
+						value={values.confirmPassword}
+						onChange={(val) => setFieldValue("confirmPassword", val)}
+					/>
+					<AppButton
+						onPress={handleSubmit}
+						disabled={!isValidating && isSubmitting}>
+						{!isSubmitting && (
+							<AppText className="text-[17px]" weight="Medium">
+								Sign Up
+							</AppText>
+						)}
+						{isSubmitting && <Loader />}
+					</AppButton>
+					<AppText className="text-center text-[17px]">
+						Already have an account ? Sign In
+					</AppText>
+				</View>
+			)}
+		</Formik>
+	);
+}
