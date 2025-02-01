@@ -14,6 +14,18 @@ export default function DashboardScreen() {
 	const { top } = useSafeAreaInsets();
 	const { userDetails } = useRootStore();
 
+	const getGreeting = () => {
+		const hour = new Date().getHours(); // Get the current hour (0 - 23)
+
+		if (hour < 12) {
+			return "Good Morning";
+		} else if (hour < 18) {
+			return "Good Afternoon";
+		} else {
+			return "Good Evening";
+		}
+	};
+
 	return (
 		<View className="flex-1 bg-white relative">
 			<ScrollView>
@@ -24,7 +36,7 @@ export default function DashboardScreen() {
 							numberOfLines={1}
 							className="text-white text-[20px] w-[190px]"
 							weight="SemiBold">
-							Good Morning, {userDetails?.fullName}
+							{getGreeting()}, {userDetails?.fullName}
 						</AppText>
 						<View>
 							<Avatar src={userDetails?.profilePicture!} />

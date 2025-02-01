@@ -42,7 +42,7 @@ export default function SignupForm() {
 	};
 
 	const showAndHideToast = useToast();
-	const { setIsAuthenticated } = useRootStore();
+	const { setIsAuthenticated, setUserDetails } = useRootStore();
 
 	const handleSubmit = async (
 		values: SignupData,
@@ -54,13 +54,22 @@ export default function SignupForm() {
 			}
 
 			const response = await ApiInstance.post("/signup", values);
-			console.log(response.data);
+
 			await SecureStore.setItemAsync(
 				"credentials",
 				JSON.stringify({
 					accessToken: response.data.token,
 				})
 			);
+
+			const response2 = await ApiInstance.get("/user/detail", {
+				headers: {
+					// @ts-ignore
+					"auth-token": response.data.token,
+				},
+			});
+
+			setUserDetails(response2.data);
 			setIsAuthenticated(true);
 			router.replace("/dashboard");
 			showAndHideToast(response.data.message, "success");

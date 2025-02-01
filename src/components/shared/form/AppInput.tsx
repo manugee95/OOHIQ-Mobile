@@ -19,6 +19,7 @@ type Props = {
 	onChange?: (value: string | number) => void;
 	keyboardType?: KeyboardTypeOptions;
 	className?: string;
+	fromStart?: boolean;
 };
 
 export default function AppInput({
@@ -30,6 +31,7 @@ export default function AppInput({
 	onChange,
 	keyboardType = "email-address",
 	className,
+	fromStart = false,
 }: Props) {
 	return (
 		<View className="w-full gap-y-[10px]">
@@ -49,6 +51,7 @@ export default function AppInput({
 						onChange(val);
 					}
 				}}
+				selection={fromStart ? { start: 0, end: 0 } : undefined}
 			/>
 			{errorMessage && (
 				<AppText className="text-[13px] text-red-500" weight="Regular">

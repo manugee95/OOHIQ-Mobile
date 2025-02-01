@@ -29,6 +29,7 @@ export default function AuditDetails({
 					className="!bg-transparent border !border-[#ececec] focus:!border-primary"
 					placeholder="Location"
 					value={currentLocation}
+					fromStart
 				/>
 			</View>
 			<AppButton

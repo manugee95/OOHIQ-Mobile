@@ -13,6 +13,7 @@ import {
 	getCurrentPositionAsync,
 	requestForegroundPermissionsAsync,
 	getForegroundPermissionsAsync,
+	LocationAccuracy,
 } from "expo-location";
 import {
 	ImagePickerAsset,
@@ -94,7 +95,9 @@ export default function NewAuditScreen() {
 	);
 
 	function getCurrentLocation() {
-		getCurrentPositionAsync().then(async ({ coords }) => {
+		getCurrentPositionAsync({
+			accuracy: LocationAccuracy.Highest,
+		}).then(async ({ coords }) => {
 			const response = await googleMapClient.reverseGeocode({
 				params: {
 					key: "AIzaSyCjVjoxu3sZvJ4yzJqidKt0chMI3TT-rws",
@@ -303,7 +306,7 @@ export default function NewAuditScreen() {
 			/>
 
 			{isTakingVideo && (
-				<View className="absolute h-full w-[100%] right-0 top-0 bg-red-400 z-[999999]">
+				<View className="absolute h-full w-[100%] right-0 top-0 z-[999999]">
 					<RecordingVideo
 						onRecorded={(val) => {
 							setVideo(val);
@@ -373,6 +376,7 @@ export default function NewAuditScreen() {
 										TakeShot("close-shot");
 									}}
 									currentShot={closeShot}
+									back={() => setCurrentStep({ num: 1, step: "details" })}
 								/>
 							)}
 
@@ -393,11 +397,16 @@ export default function NewAuditScreen() {
 										TakeShot("long-shot");
 									}}
 									currentShot={longShot}
+									back={() => setCurrentStep({ num: 2, step: "close-shot" })}
 								/>
 							)}
 
 							{currentStep.step === "video" && (
-								<RecordVideo startRecording={TakeVideo} videoSource={video} />
+								<RecordVideo
+									startRecording={TakeVideo}
+									videoSource={video}
+									back={() => setCurrentStep({ num: 3, step: "long-shot" })}
+								/>
 							)}
 
 							{currentStep.step === "video" && video && (
