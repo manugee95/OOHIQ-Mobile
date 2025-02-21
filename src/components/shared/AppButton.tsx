@@ -1,5 +1,5 @@
 import React, { PropsWithChildren } from "react";
-import { Pressable } from "react-native";
+import { Pressable, PressableProps } from "react-native";
 import Animated, {
 	useSharedValue,
 	useAnimatedStyle,
@@ -12,6 +12,7 @@ type Props = {
 	onPress?: () => void;
 	className?: string;
 	disabled?: boolean;
+	style?: any;
 } & PropsWithChildren;
 
 export const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
@@ -21,6 +22,7 @@ export default function AppButton({
 	onPress,
 	className,
 	disabled,
+	style,
 }: Props) {
 	const pressed = useSharedValue<boolean>(false);
 	const animatedStyles = useAnimatedStyle(() => ({
@@ -39,7 +41,7 @@ export default function AppButton({
 			<AnimatedPressable
 				disabled={disabled}
 				onPress={onPress}
-				style={[animatedStyles]}
+				style={[animatedStyles, style]}
 				className={`rounded-[10px] h-[65px] bg-primary w-full flex-row  items-center justify-center ${className}`}>
 				{children}
 			</AnimatedPressable>

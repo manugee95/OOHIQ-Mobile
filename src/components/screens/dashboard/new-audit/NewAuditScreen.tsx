@@ -40,6 +40,7 @@ import mime from "mime";
 import * as MediaLibrary from "expo-media-library";
 import { Platform } from "react-native";
 import AuditSubmitted from "./AuditSubmitted";
+import { submissionRequestObject } from "@/src/utils/submission-requests";
 
 export type Steps = "details" | "close-shot" | "long-shot" | "video";
 
@@ -260,15 +261,34 @@ export default function NewAuditScreen() {
 				type: mime.getType(videoAss.localUri ?? videoAss.uri),
 			});
 
-			const response = await ApiInstance.post("/new-audit", data, {
-				headers: {
-					// @ts-ignore
-					"auth-token": credentials.accessToken,
-					"Content-Type": "multipart/form-data",
-				},
-			});
+			const submissionRequest = async function (cb: (val: any) => void) {
+				const response = await ApiInstance.post("/new-audit", data, {
+					headers: {
+						// @ts-ignore
+						"auth-token": credentials.accessToken,
+						"Content-Type": "multipart/form-data",
+					},
+					onUploadProgress: (progressEvent) => {
+						const totalLength = progressEvent.total;
+						if (totalLength) {
+							const progress = Math.round(
+								(progressEvent.loaded * 100) / totalLength
+							);
+							console.log(`Upload Progress: ${progress}%`);
+							// Update your state or UI component with the progress value
+							cb(progress);
+						}
+					},
+				});
 
-			showAndHideToast(response.data.message, "success");
+				return response.data;
+			};
+
+			submissionRequest.address = currentLocation;
+
+			submissionRequestObject[currentLocation] = submissionRequest;
+
+			showAndHideToast("Your submission is being uploaded!", "success");
 			setIsSubmitted(true);
 		} catch (error) {
 			// @ts-ignore
@@ -411,7 +431,7 @@ export default function NewAuditScreen() {
 
 							{currentStep.step === "video" && video && (
 								<View className="px-[15px]">
-									<AppButton onPress={handleSubmit}>
+									<AppButton disabled={isSubmitting} onPress={handleSubmit}>
 										{isSubmitting && <Loader />}
 										{!isSubmitting && (
 											<AppText

@@ -104,7 +104,7 @@ export default function ResetPasswordScreen() {
 					<View className="pt-[30px] pb-[30px] gap-y-[15px] px-[10px]">
 						<AppInput.ForPassword
 							label="Password"
-							className="!bg-white border-[#ececec]"
+							className=" border-[#ececec]"
 							placeholder="Password"
 							errorMessage={errors.newPassword}
 							value={values.newPassword}
@@ -112,7 +112,7 @@ export default function ResetPasswordScreen() {
 						/>
 						<AppInput.ForPassword
 							label="Confirm Password"
-							className="!bg-white border-[#ececec]"
+							className=" border-[#ececec]"
 							placeholder="Confirm Password"
 							errorMessage={errors.confirmPassword}
 							value={values.confirmPassword}

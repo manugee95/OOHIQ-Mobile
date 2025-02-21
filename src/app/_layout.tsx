@@ -11,6 +11,7 @@ import useRootStore from "../hooks/stores/useRootstore";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 import "../../globals.css";
 import Alert from "../components/shared/Alert";
+import OngoingSubmission from "../components/shared/OngoingSubmission";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -55,6 +56,7 @@ export default function RootLayout() {
 
 	return (
 		<QueryClientProvider client={queryClient}>
+			<OngoingSubmission />
 			<SafeAreaProvider>
 				<GestureHandlerRootView>
 					<Alert />

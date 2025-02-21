@@ -9,6 +9,7 @@ import ArrowIcon from "@/src/assets/images/ArrowIcon.svg";
 import PlusIcon from "@/src/assets/images/PlusIcon.svg";
 import { router } from "expo-router";
 import useRootStore from "@/src/hooks/stores/useRootstore";
+import { shadowStyles } from "@/src/utils/stylesheets";
 
 export default function DashboardScreen() {
 	const { top } = useSafeAreaInsets();
@@ -30,8 +31,8 @@ export default function DashboardScreen() {
 		<View className="flex-1 bg-white relative">
 			<ScrollView>
 				<View className="bg-bgBlack" style={{ height: top + 30 }}></View>
-				<View className="bg-bgBlack h-[60%] px-[10px] shrink-0 pb-[25px]">
-					<View className="flex-row items-center justify-between">
+				<View className="bg-bgBlack h-[60%]  shrink-0 pb-[25px] relative">
+					<View className="px-[10px] flex-row items-center justify-between">
 						<AppText
 							numberOfLines={1}
 							className="text-white text-[20px] w-[190px]"
@@ -68,7 +69,10 @@ export default function DashboardScreen() {
 				</View>
 			</ScrollView>
 			<AppButton
-				onPress={() => router.push("/dashboard/new-audit")}
+				style={shadowStyles.shadow}
+				onPress={() => {
+					router.push("/(tabs)/dashboard/new-audit");
+				}}
 				className="!w-[150px] absolute bottom-[20px] right-[10px] !rounded-full gap-[10px]">
 				<PlusIcon />
 				<AppText className="text-[17px]">New Audit</AppText>

@@ -4,6 +4,7 @@ import Success from "@/src/assets/images/SuccessImage.svg";
 import AppButton from "@/src/components/shared/AppButton";
 import AppText from "@/src/components/shared/AppText";
 import { router } from "expo-router";
+import useRootStore from "@/src/hooks/stores/useRootstore";
 
 export default function AuditSubmitted({
 	uploadAnother,
@@ -17,12 +18,13 @@ export default function AuditSubmitted({
 				Upload Successful!
 			</AppText>
 			<AppText className="text-[15px] text-[#777777] text-center mt-[5px]">
-				Your billboard audit has been uploaded successfully. You’ve earned
-				rewards for your submission. Thank you for contributing!
+				Your billboard audit is being uploaded. We'll notify you when the upload
+				is complete. During the upload do not close/kill the app.
 			</AppText>
-
 			<AppButton
-				onPress={() => router.replace("/dashboard")}
+				onPress={() => {
+					router.replace("/dashboard");
+				}}
 				className="mt-[20px]">
 				<AppText className="text-[15px]">Go to dashboard</AppText>
 			</AppButton>

@@ -103,7 +103,7 @@ AppInput.ForPassword = ({
 				<Pressable
 					className="w-[30px] h-full items-center justify-center"
 					onPress={() => setShowText(!showText)}>
-					{!showText && <Eye />}
+					{!showText && <Eye fill={"black"} fillOpacity={0.6} />}
 					{showText && <EyeX />}
 				</Pressable>
 			</View>

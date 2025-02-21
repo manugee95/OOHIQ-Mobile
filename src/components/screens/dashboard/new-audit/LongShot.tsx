@@ -49,14 +49,14 @@ export default function LongShot({
 					</AppText>
 				</View>
 				<View className="flex-row items-center gap-[10px]">
-					<AppButton
+					{/* <AppButton
 						onPress={() => PickImage("long-shot")}
 						className="!w-1/2 !bg-transparent border border-[#ececec] gap-[10px]">
 						<ImageIcon />
 						<AppText className="text-[17px] text-[#8d8d8d]">
 							Select Image
 						</AppText>
-					</AppButton>
+					</AppButton> */}
 					<AppButton
 						onPress={TakeLongShot}
 						className="!w-1/2 !bg-transparent border border-[#ececec] gap-[10px]">
