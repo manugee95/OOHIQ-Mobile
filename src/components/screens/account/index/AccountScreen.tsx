@@ -17,6 +17,7 @@ import { router } from "expo-router";
 export default function AccountScreen() {
 	const { top } = useSafeAreaInsets();
 	const { setIsAuthenticated } = useRootStore();
+	const { userDetails } = useRootStore();
 
 	function logout() {
 		SecureStore.deleteItemAsync("credentials");
@@ -28,12 +29,9 @@ export default function AccountScreen() {
 		<View className="flex-1 bg-white">
 			<View className="bg-bgBlack" style={{ height: top + 30 }}></View>
 			<View className="h-[30%] bg-bgBlack items-center">
-				<Avatar
-					size={70}
-					src="https://images.pexels.com/photos/7862484/pexels-photo-7862484.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
-				/>
+				<Avatar size={70} src={userDetails?.profilePicture!} />
 				<AppText className="!text-white text-[20px]" weight="SemiBold">
-					Emeka Alaba
+					{userDetails?.fullName}
 				</AppText>
 				<View className="flex-row items-center">
 					<AppText className="!text-white text-[15px]">Rookie</AppText>

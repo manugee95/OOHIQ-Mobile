@@ -27,17 +27,28 @@ export default function DashboardScreen() {
 		}
 	};
 
+	const username = userDetails?.fullName.split(" ");
+	let nameToUse = ``;
+
+	if (username && username[1]) {
+		nameToUse += username[0];
+	} else {
+		if (userDetails) {
+			nameToUse = userDetails?.fullName;
+		}
+	}
+
 	return (
 		<View className="flex-1 bg-white relative">
 			<ScrollView>
 				<View className="bg-bgBlack" style={{ height: top + 30 }}></View>
-				<View className="bg-bgBlack h-[60%]  shrink-0 pb-[25px] relative">
+				<View className="bg-bgBlack h-max  shrink-0 pb-[25px] relative">
 					<View className="px-[10px] flex-row items-center justify-between">
 						<AppText
 							numberOfLines={1}
-							className="text-white text-[20px] w-[190px]"
+							className="text-white text-[20px] w-[250px]"
 							weight="SemiBold">
-							{getGreeting()}, {userDetails?.fullName}
+							{getGreeting()}, {nameToUse}
 						</AppText>
 						<View>
 							<Avatar src={userDetails?.profilePicture!} />

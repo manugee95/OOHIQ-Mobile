@@ -25,7 +25,7 @@ const CircularProgress = ({
 	const strokeDashoffset = circumference - (circumference * percentage) / 100;
 
 	return (
-		<View className="items-center justify-center">
+		<View className="items-center justify-center relative">
 			<Svg width={radius * 2} height={radius * 2}>
 				{/* Background Circle */}
 				<Circle

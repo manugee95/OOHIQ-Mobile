@@ -7,7 +7,7 @@ import { Formik, FormikHelpers } from "formik";
 import * as Yup from "yup";
 import useToast from "@/src/hooks/useToast";
 import useRootStore from "@/src/hooks/stores/useRootstore";
-import { AxiosError } from "axios";
+import axios, { AxiosError } from "axios";
 import ApiInstance from "@/src/utils/api-instance";
 import {
 	getCurrentPositionAsync,
