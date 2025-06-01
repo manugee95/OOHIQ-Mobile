@@ -12,7 +12,8 @@ import ChevronIcon from "@/src/assets/images/ChevronIcon.svg";
 import { FlashList } from "@shopify/flash-list";
 import * as SecureStore from "expo-secure-store";
 import useRootStore from "@/src/hooks/stores/useRootstore";
-import { router } from "expo-router";
+import { Redirect, router } from "expo-router";
+import { levels } from "@/src/utils/level-icon";
 
 export default function AccountScreen() {
 	const { top } = useSafeAreaInsets();
@@ -25,6 +26,12 @@ export default function AccountScreen() {
 		router.replace("/auth");
 	}
 
+	if (!userDetails) {
+		return <Redirect href={"/auth"} />;
+	}
+
+	const LevelIcon = levels[userDetails?.level];
+
 	return (
 		<View className="flex-1 bg-white">
 			<View className="bg-bgBlack" style={{ height: top + 30 }}></View>
@@ -33,11 +40,17 @@ export default function AccountScreen() {
 				<AppText className="!text-white text-[20px]" weight="SemiBold">
 					{userDetails?.fullName}
 				</AppText>
-				<View className="flex-row items-center">
-					<AppText className="!text-white text-[15px]">Rookie</AppText>
-					<BronzeMedal />
+				<View className="flex-row items-center gap-[5px] mt-[7px]">
+					<AppText className="!text-white text-[15px]">
+						{userDetails.level}
+					</AppText>
+					<LevelIcon />
 				</View>
-				<AppButton className="rounded-full !w-[40%] !h-[50px] mt-[10px]">
+				<AppButton
+					onPress={() => {
+						router.push("/account/profile");
+					}}
+					className="rounded-full !w-[40%] !h-[50px] mt-[10px]">
 					<AppText className="!text-bgBlack text-[15px]" weight="Medium">
 						View Profile
 					</AppText>

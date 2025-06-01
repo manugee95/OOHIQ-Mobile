@@ -1,4 +1,3 @@
-import { Toast } from "toastify-react-native";
 import useRootStore from "./stores/useRootstore";
 
 let timeoutId: NodeJS.Timeout | string | number | undefined;

@@ -1,13 +1,13 @@
 import AppHeader from "@/src/components/shared/AppHeader";
 import { Stack } from "expo-router";
-import React, { useCallback, useRef, useState } from "react";
+import React, { useCallback, useState } from "react";
 import { View } from "react-native";
 import { useFocusEffect } from "expo-router";
 import { Formik, FormikHelpers } from "formik";
 import * as Yup from "yup";
 import useToast from "@/src/hooks/useToast";
 import useRootStore from "@/src/hooks/stores/useRootstore";
-import axios, { AxiosError } from "axios";
+import { AxiosError } from "axios";
 import ApiInstance from "@/src/utils/api-instance";
 import {
 	getCurrentPositionAsync,
@@ -41,6 +41,16 @@ import * as MediaLibrary from "expo-media-library";
 import { Platform } from "react-native";
 import AuditSubmitted from "./AuditSubmitted";
 import { submissionRequestObject } from "@/src/utils/submission-requests";
+import Industries from "@/src/components/shared/industry/Industries";
+import Advertisers from "@/src/components/shared/advertisers/Advertisers";
+import Categories from "@/src/components/shared/industry-category/Categories";
+import { writeAsync, readAsync } from "@lodev09/react-native-exify";
+import RNPhotoManipulator, { MimeType } from "react-native-photo-manipulator";
+import * as SecureStore from "expo-secure-store";
+import BoardConditions from "@/src/components/shared/board-condition/BoardConditions";
+import PosterConditions from "@/src/components/shared/poster-condition/PosterConditions";
+import TrafficSpeeds from "@/src/components/shared/traffic-speed/TrafficSpeeds";
+import EvaluationTime from "@/src/components/shared/evaluation-time/EvaluationTime";
 
 export type Steps = "details" | "close-shot" | "long-shot" | "video";
 
@@ -49,6 +59,16 @@ export interface NewAuditData {
 	billboardTypeId: number | string;
 	latitude: number | string;
 	longitude: number | string;
+	advertiserId: number | string;
+	categoryId: number | string;
+	industryId: number | string;
+	brand: string;
+	brandIdentifier: string;
+	boardConditionId: string;
+	posterConditionId: string;
+	trafficSpeedId: string;
+	evaluationTimeId: string;
+	[string: string]: string | number;
 }
 
 const schema = Yup.object().shape({
@@ -56,22 +76,46 @@ const schema = Yup.object().shape({
 	billboardTypeId: Yup.string().required().label("Billboard Type"),
 	latitude: Yup.number().required().label("Location"),
 	longitude: Yup.number().required().label("Location"),
+	industryId: Yup.string().required().label("Industry"),
+	advertiserId: Yup.string().required().label("Industry"),
+	categoryId: Yup.string().required().label("Category"),
+	brand: Yup.string().required().label("Brand"),
+	brandIdentifier: Yup.string().required().label("Brand Identifier"),
 });
 
-export default function NewAuditScreen() {
+export default function NewAuditScreen({
+	isReaudit,
+	currentLocationStr = "",
+	reAuditID,
+	longitude,
+	latitude,
+}: {
+	isReaudit?: boolean;
+	currentLocationStr?: string;
+	reAuditID?: number;
+	longitude?: number;
+	latitude?: number;
+}) {
 	const showAndHideToast = useToast();
 	const { userDetails } = useRootStore();
 	const { getCredentials } = useCredentials();
-	const [coordinates, setCoordinates] = useState({ longitude: 0, latitude: 0 });
+	const [coordinates, setCoordinates] = useState({
+		longitude: longitude ?? 0,
+		latitude: latitude ?? 0,
+	});
 	const [status, requestCameraPermission] = useCameraPermissions();
 	const [micStatus, requestMicPermission] = useMicrophonePermissions();
 
-	const [isGettingLocation, setIsGettingLocation] = useState(true);
+	const [isGettingLocation, setIsGettingLocation] = useState(!isReaudit);
 	const [isTakingVideo, setIsTakingVideo] = useState(false);
-	const [closeShot, setCloseShot] = useState<ImagePickerAsset | null>(null);
-	const [longShot, setLongShot] = useState<ImagePickerAsset | null>(null);
+	const [closeShot, setCloseShot] = useState<
+		ImagePickerAsset | MediaLibrary.Asset | null
+	>(null);
+	const [longShot, setLongShot] = useState<
+		ImagePickerAsset | MediaLibrary.Asset | null
+	>(null);
 	const [video, setVideo] = useState<string | null>(null);
-	const [currentLocation, setCurrentLocation] = useState("");
+	const [currentLocation, setCurrentLocation] = useState(currentLocationStr);
 	const [currentStep, setCurrentStep] = useState<{ num: number; step: Steps }>({
 		num: 1,
 		step: "details",
@@ -81,17 +125,45 @@ export default function NewAuditScreen() {
 
 	useFocusEffect(
 		useCallback(() => {
-			getForegroundPermissionsAsync().then((val) => {
-				if (val.granted) {
-					getCurrentLocation();
-				} else {
-					requestForegroundPermissionsAsync().then((val) => {
-						if (val.granted) {
+			if (!isReaudit) {
+				getForegroundPermissionsAsync().then(async (val) => {
+					if (val.granted) {
+						const { granted } = await MediaLibrary.getPermissionsAsync();
+						if (granted) {
 							getCurrentLocation();
+						} else {
+							const { granted } = await MediaLibrary.requestPermissionsAsync();
+							if (!granted) {
+								showAndHideToast("Media Library Permission denied", "error");
+							} else {
+								getCurrentLocation();
+							}
 						}
-					});
-				}
-			});
+					} else {
+						requestForegroundPermissionsAsync().then(async (val) => {
+							if (val.granted) {
+								const { granted } = await MediaLibrary.getPermissionsAsync();
+								if (granted) {
+									getCurrentLocation();
+								} else {
+									const { granted } =
+										await MediaLibrary.requestPermissionsAsync();
+									if (!granted) {
+										showAndHideToast(
+											"Media Library Permission denied",
+											"error"
+										);
+									} else {
+										getCurrentLocation();
+									}
+								}
+							} else {
+								showAndHideToast("Location access Permission denied", "error");
+							}
+						});
+					}
+				});
+			}
 		}, [])
 	);
 
@@ -99,9 +171,10 @@ export default function NewAuditScreen() {
 		getCurrentPositionAsync({
 			accuracy: LocationAccuracy.Highest,
 		}).then(async ({ coords }) => {
+			const apiKey = await SecureStore.getItemAsync("googleApiKey");
 			const response = await googleMapClient.reverseGeocode({
 				params: {
-					key: "AIzaSyCjVjoxu3sZvJ4yzJqidKt0chMI3TT-rws",
+					key: apiKey ?? "",
 					latlng: {
 						longitude: coords.longitude,
 						latitude: coords.latitude,
@@ -141,20 +214,24 @@ export default function NewAuditScreen() {
 	}
 
 	async function ShowCamera(type: Steps) {
-		const result = await launchCameraAsync({
-			exif: true,
-		});
+		try {
+			const result = await launchCameraAsync({
+				exif: true,
+			});
 
-		if (result.canceled) {
-			return;
-		}
+			if (result.canceled) {
+				return;
+			}
 
-		if (type === "close-shot") {
-			setCloseShot(result.assets[0]);
-		}
+			if (type === "close-shot") {
+				setCloseShot(result.assets[0]);
+			}
 
-		if (type === "long-shot") {
-			setLongShot(result.assets[0]);
+			if (type === "long-shot") {
+				setLongShot(result.assets[0]);
+			}
+		} catch (error) {
+			console.log(error);
 		}
 	}
 
@@ -177,6 +254,8 @@ export default function NewAuditScreen() {
 			const { granted: mediaGranted } = await requestCameraPermissionsAsync();
 			if (mediaGranted) {
 				ShowCamera(type);
+			} else {
+				showAndHideToast("Camera Permission not granted", "error");
 			}
 		} else {
 			ShowCamera(type);
@@ -211,6 +290,40 @@ export default function NewAuditScreen() {
 		}
 	}
 
+	async function watermarkImage(uri: string, height: number) {
+		const tags = await readAsync(uri);
+		const watermarkImage = require("../../../../assets/images/watermark.png");
+
+		if (tags && tags.Orientation !== undefined && tags.Orientation !== null) {
+			const path = await RNPhotoManipulator.overlayImage(
+				closeShot?.uri!,
+				watermarkImage,
+				{ x: 20, y: height - 200 },
+				MimeType.PNG
+			);
+
+			const res = await writeAsync(path, {
+				...tags,
+				Orientation: tags.Orientation !== 1 ? 1 : tags.Orientation,
+			});
+
+			if (res) {
+				const asset = await MediaLibrary.createAssetAsync(res.uri);
+
+				return asset;
+			}
+		}
+	}
+
+	const formDataToJSON = function (formData: FormData) {
+		const json: Record<string, any> = {};
+		formData.forEach((value, key) => {
+			// If it's a File or Blob, you'll need custom handling (see below)
+			json[key] = value;
+		});
+		return JSON.stringify(json);
+	};
+
 	const submitHandler = async function (
 		values: NewAuditData,
 		{ setSubmitting }: FormikHelpers<NewAuditData>
@@ -219,81 +332,102 @@ export default function NewAuditScreen() {
 			const data = new FormData();
 			const credentials = await getCredentials();
 
-			data.append("userId", values.userId.toString());
-			data.append("billboardTypeId", values.billboardTypeId.toString());
-			data.append("latitude", values.latitude.toString());
-			data.append("longitude", values.longitude.toString());
-
-			let closeAss = await MediaLibrary.createAssetAsync(closeShot?.uri!);
-			let longAss = await MediaLibrary.createAssetAsync(longShot?.uri!);
-			let videoAss = await MediaLibrary.createAssetAsync(video!);
-
-			if (Platform.OS === "ios") {
-				closeAss = await MediaLibrary.getAssetInfoAsync(closeAss);
-				longAss = await MediaLibrary.getAssetInfoAsync(longAss);
-				videoAss = await MediaLibrary.getAssetInfoAsync(videoAss);
+			if (!closeShot || !longShot || !video) {
+				throw new Error("Media files are required");
 			}
 
-			// @ts-ignore
-			data.append("closeShot", {
-				// @ts-ignore
-				uri: closeAss.localUri ?? closeAss.uri,
-				name: closeShot?.fileName,
-				// @ts-ignore
-				type: mime.getType(closeAss.localUri ?? closeAss.uri),
+			Object.keys(values).forEach((key: string) => {
+				data.append(key, values[key].toString());
 			});
 
-			// @ts-ignore
-			data.append("longShot", {
-				// @ts-ignore
-				uri: longAss.localUri ?? longAss.uri,
-				name: longShot?.fileName,
-				// @ts-ignore
-				type: mime.getType(longAss.localUri ?? longAss.uri),
-			});
+			const closeAss = await MediaLibrary.createAssetAsync(closeShot?.uri);
+			const longAss = await MediaLibrary.createAssetAsync(longShot?.uri);
+			const videoAss = await MediaLibrary.createAssetAsync(video);
 
-			// @ts-ignore
-			data.append("video", {
-				// @ts-ignore
-				uri: videoAss.localUri ?? videoAss.uri,
-				name: "audit-vid",
-				// @ts-ignore
-				type: mime.getType(videoAss.localUri ?? videoAss.uri),
-			});
+			if (closeAss && longAss && videoAss) {
+				const newCloseShot = await MediaLibrary.getAssetInfoAsync(closeAss);
+				const newLongShot = await MediaLibrary.getAssetInfoAsync(longAss);
+				const newVideo = await MediaLibrary.getAssetInfoAsync(videoAss);
 
-			const submissionRequest = async function (cb: (val: any) => void) {
-				const response = await ApiInstance.post("/new-audit", data, {
-					headers: {
-						// @ts-ignore
-						"auth-token": credentials.accessToken,
-						"Content-Type": "multipart/form-data",
-					},
-					onUploadProgress: (progressEvent) => {
-						const totalLength = progressEvent.total;
-						if (totalLength) {
-							const progress = Math.round(
-								(progressEvent.loaded * 100) / totalLength
-							);
-							console.log(`Upload Progress: ${progress}%`);
-							// Update your state or UI component with the progress value
-							cb(progress);
-						}
-					},
+				// mime type gets .mov videos as video/quicktime which is not supported on the server, so we manually set the type as video/mov
+				const videoFilename = newVideo.filename.split(".");
+				const fileExtension = videoFilename[videoFilename.length - 1];
+				const videoMediaType = `${newVideo.mediaType}/${fileExtension}`;
+
+				// @ts-ignore
+				data.append("closeShot", {
+					uri: Platform.OS === "ios" ? newCloseShot.localUri : newCloseShot.uri,
+					name: newCloseShot?.filename,
+					type: mime.getType(newCloseShot.uri),
 				});
 
-				return response.data;
-			};
+				// @ts-ignore
+				data.append("longShot", {
+					uri: Platform.OS === "ios" ? newLongShot.localUri : newLongShot.uri,
+					name: newLongShot?.filename,
+					type: mime.getType(newLongShot.uri),
+				});
 
-			submissionRequest.address = currentLocation;
+				// @ts-ignore
+				data.append("video", {
+					uri: Platform.OS === "ios" ? newVideo.localUri : newVideo.uri,
+					name: "audit-vid",
+					type: videoMediaType,
+				});
 
-			submissionRequestObject[currentLocation] = submissionRequest;
+				const json = formDataToJSON(data);
 
-			showAndHideToast("Your submission is being uploaded!", "success");
-			setIsSubmitted(true);
+				let pendingSubmissions: any = await SecureStore.getItemAsync(
+					"pendingSubmissions"
+				);
+
+				if (!pendingSubmissions) {
+					pendingSubmissions = {};
+					pendingSubmissions[currentLocation] = json;
+				} else {
+					pendingSubmissions = JSON.parse(pendingSubmissions);
+					pendingSubmissions[currentLocation] = json;
+				}
+
+				await SecureStore.setItemAsync(
+					"pendingSubmissions",
+					JSON.stringify(pendingSubmissions)
+				);
+
+				const submissionRequest = async function (cb: (val: any) => void) {
+					const response = await ApiInstance.post(
+						!isReaudit ? "/new-audit" : `api/re-audit/${reAuditID}`,
+						data,
+						{
+							headers: {
+								// @ts-ignore
+								"auth-token": credentials.accessToken,
+								"Content-Type": "multipart/form-data",
+							},
+							onUploadProgress: (progressEvent) => {
+								const totalLength = progressEvent.total;
+								if (totalLength) {
+									const progress = Math.round(
+										(progressEvent.loaded * 100) / totalLength
+									);
+									cb(progress);
+								}
+							},
+						}
+					);
+
+					return response.data;
+				};
+
+				submissionRequest.address = currentLocation;
+
+				submissionRequestObject[currentLocation] = submissionRequest;
+
+				showAndHideToast("Your submission is being uploaded!", "success");
+				setIsSubmitted(true);
+			}
 		} catch (error) {
-			// @ts-ignore
-			const err: AxiosError = error;
-			// @ts-ignore
+			const err = error as AxiosError<any>;
 			showAndHideToast(err.response?.data?.message ?? err.message, "error");
 			setSubmitting(false);
 		}
@@ -304,6 +438,15 @@ export default function NewAuditScreen() {
 		billboardTypeId: "",
 		latitude: coordinates.latitude,
 		longitude: coordinates.longitude,
+		brand: "",
+		brandIdentifier: "",
+		industryId: "",
+		advertiserId: "",
+		categoryId: "",
+		boardConditionId: "",
+		posterConditionId: "",
+		trafficSpeedId: "",
+		evaluationTimeId: "",
 	};
 
 	return (
@@ -370,7 +513,7 @@ export default function NewAuditScreen() {
 					onSubmit={submitHandler}
 					validationSchema={schema}
 					initialValues={initialValues}>
-					{({ values, setFieldValue, handleSubmit, isSubmitting }) => (
+					{({ values, setFieldValue, handleSubmit, isSubmitting, errors }) => (
 						<>
 							{currentStep.step === "details" && (
 								<AuditDetails
@@ -431,12 +574,14 @@ export default function NewAuditScreen() {
 
 							{currentStep.step === "video" && video && (
 								<View className="px-[15px]">
-									<AppButton disabled={isSubmitting} onPress={handleSubmit}>
+									<AppButton
+										disabled={isSubmitting}
+										onPress={() => {
+											handleSubmit();
+										}}>
 										{isSubmitting && <Loader />}
 										{!isSubmitting && (
-											<AppText
-												className="text-[17px] mt-[20px]"
-												weight="Medium">
+											<AppText className="text-[17px]" weight="Medium">
 												Continue
 											</AppText>
 										)}
@@ -448,6 +593,52 @@ export default function NewAuditScreen() {
 								currentValue={values.billboardTypeId}
 								setBoardType={(val: number) =>
 									setFieldValue("billboardTypeId", val)
+								}
+							/>
+
+							<Industries
+								currentValue={values.industryId}
+								setIndustry={(val: number) => {
+									setFieldValue("industryId", val);
+									setFieldValue("categoryId", "");
+								}}
+							/>
+
+							<Advertisers
+								currentValue={values.advertiserId}
+								setAdvertiser={(val: number) =>
+									setFieldValue("advertiserId", val)
+								}
+							/>
+
+							<Categories
+								currentValue={values.categoryId}
+								setCategory={(val: number) => setFieldValue("categoryId", val)}
+								industryId={values.industryId}
+							/>
+
+							<BoardConditions
+								currentValue={values.boardConditionId}
+								setBoardCondition={(val: number) =>
+									setFieldValue("boardConditionId", val)
+								}
+							/>
+							<PosterConditions
+								currentValue={values.posterConditionId}
+								setPosterCondition={(val: number) =>
+									setFieldValue("posterConditionId", val)
+								}
+							/>
+							<TrafficSpeeds
+								currentValue={values.trafficSpeedId}
+								setTrafficSpeed={(val: number) =>
+									setFieldValue("trafficSpeedId", val)
+								}
+							/>
+							<EvaluationTime
+								currentValue={values.evaluationTimeId}
+								setEvaluationTime={(val: number) =>
+									setFieldValue("evaluationTimeId", val)
 								}
 							/>
 						</>

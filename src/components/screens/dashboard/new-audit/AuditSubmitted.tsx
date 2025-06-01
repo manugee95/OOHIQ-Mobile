@@ -15,11 +15,13 @@ export default function AuditSubmitted({
 		<View className="h-[400px] items-center justify-center px-[10px]">
 			<Success />
 			<AppText weight="SemiBold" className="text-[17px] mt-[10px]">
-				Upload Successful!
+				Upload In Progress!
 			</AppText>
 			<AppText className="text-[15px] text-[#777777] text-center mt-[5px]">
-				Your billboard audit is being uploaded. We'll notify you when the upload
-				is complete. During the upload do not close/kill the app.
+				{/* Your billboard audit is being uploaded. We'll notify you when the upload
+				is complete. During the upload do not close/kill the app. */}
+				Your billboard audit is being uploaded. Go to the uploads tab to see the
+				status of your submission.
 			</AppText>
 			<AppButton
 				onPress={() => {

@@ -34,7 +34,7 @@ export default function RootLayout() {
 	const pathname = usePathname();
 
 	useEffect(() => {
-		const lightScreens = ["/dashboard", "/wallet", "/account"];
+		const lightScreens = ["/dashboard", "/wallet", "/account", "/uploads"];
 		const isLight = lightScreens.some((s) => pathname.startsWith(s));
 
 		if (isLight) {
@@ -56,9 +56,9 @@ export default function RootLayout() {
 
 	return (
 		<QueryClientProvider client={queryClient}>
-			<OngoingSubmission />
 			<SafeAreaProvider>
 				<GestureHandlerRootView>
+					<OngoingSubmission />
 					<Alert />
 					<StatusBar style={statusBarStyle} />
 					<View onLayout={onLayoutRootView}></View>

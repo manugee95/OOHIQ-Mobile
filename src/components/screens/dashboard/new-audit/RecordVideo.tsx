@@ -61,7 +61,8 @@ export default function RecordVideo({
 					onPress={async () => {
 						player.pause();
 						startRecording();
-					}}>
+					}}
+					className={`${!videoSource ? "" : "!bg-[#f5f5f5]"}`}>
 					<AppText className="text-[17px]" weight="Medium">
 						{!videoSource ? "Start Recording" : "Record Again"}
 					</AppText>

@@ -3,7 +3,7 @@ import BottomSheet from "../BottomSheet";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { useRef } from "react";
 import { Pressable, View } from "react-native";
-import { BottomSheetFlashList } from "@gorhom/bottom-sheet";
+import { BottomSheetFlashList, BottomSheetView } from "@gorhom/bottom-sheet";
 import { useQuery } from "@tanstack/react-query";
 import ApiInstance from "@/src/utils/api-instance";
 import useCredentials from "@/src/hooks/useCredentials";
@@ -48,7 +48,7 @@ export default function BillboardTypes({
 			sheetRef={billboardTypeRef}
 			snapPoints={["30%", "30%"]}
 			snapIndex={1}>
-			<View className="flex-1">
+			<BottomSheetView className="flex-1">
 				<BottomSheetFlashList
 					data={isLoading ? [] : data}
 					renderItem={({ item }: { item: { id: number; name: string } }) => {
@@ -78,7 +78,7 @@ export default function BillboardTypes({
 					}}
 					estimatedItemSize={200}
 				/>
-			</View>
+			</BottomSheetView>
 		</BottomSheet>
 	);
 }

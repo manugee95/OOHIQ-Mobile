@@ -49,6 +49,11 @@ export default function LoginForm() {
 				})
 			);
 
+			await SecureStore.setItemAsync(
+				"googleApiKey",
+				response.data.google_api_key
+			);
+
 			const response2 = await ApiInstance.get("/user/detail", {
 				headers: {
 					// @ts-ignore

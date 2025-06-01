@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import DashboardIcon from "@/src/assets/images/DashboardIcon.svg";
 import AccountIcon from "@/src/assets/images/AccountIcon.svg";
 import WalletIcon from "@/src/assets/images/WalletIcon.svg";
+import UploadIcon from "@/src/assets/images/UploadIcon.svg";
 import AppText from "./AppText";
 import { usePathname } from "expo-router";
 
@@ -90,12 +91,16 @@ const TabItem = ({
 					<WalletIcon fill={isFocused ? "#3DF3A9" : "#C3D7CF"} />
 				)}
 
+				{label === "Uploads" && (
+					<UploadIcon fill={isFocused ? "#3DF3A9" : "#C3D7CF"} />
+				)}
+
 				{label === "Account" && (
 					<AccountIcon fill={isFocused ? "#3DF3A9" : "#C3D7CF"} />
 				)}
 			</View>
 			<AppText
-				className={`text-[15px] ${
+				className={`text-[12px] ${
 					isFocused ? "text-bgBlack" : "text-[#C3D7CF]"
 				}`}
 				weight={"Medium"}>
@@ -113,11 +118,11 @@ const styles = StyleSheet.create({
 		alignItems: "center",
 		justifyContent: "space-between",
 		backgroundColor: "white",
-		paddingHorizontal: 15,
+		// paddingHorizontal: 15,
 	},
 
 	tabBarItem: {
-		width: width / 5,
+		width: width / 4,
 		alignItems: "center",
 		justifyContent: "center",
 		gap: 2,

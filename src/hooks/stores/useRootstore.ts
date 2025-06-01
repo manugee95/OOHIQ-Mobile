@@ -18,7 +18,14 @@ type RootStore = {
 	statusBarStyle: "light" | "dark";
 	isAuthenticated: boolean;
 	billboardTypeRef: BottomSheetRef;
+	industryRef: BottomSheetRef;
+	categoryRef: BottomSheetRef;
+	advertiserRef: BottomSheetRef;
 	ongoingSubmissionsRef: BottomSheetRef;
+	boardConditionRef: BottomSheetRef;
+	posterConditionRef: BottomSheetRef;
+	trafficSpeedRef: BottomSheetRef;
+	evaluationTimeRef: BottomSheetRef;
 	userDetails: User | null;
 	alert: Alert;
 	ongoingSubmissions: SubmissionRequest[];
@@ -30,6 +37,13 @@ type RootStore = {
 	setIsAuthenticated: (val: boolean) => void;
 	setBillboardTypeRef: (val: BottomSheetRef) => void;
 	setOngoingSubmissionsRef: (val: BottomSheetRef) => void;
+	setIndustryRef: (val: BottomSheetRef) => void;
+	setCategoryRef: (val: BottomSheetRef) => void;
+	setAdvertiserRef: (val: BottomSheetRef) => void;
+	setBoardConditionRef: (val: BottomSheetRef) => void;
+	setPosterConditionRef: (val: BottomSheetRef) => void;
+	setTrafficSpeedRef: (val: BottomSheetRef) => void;
+	setEvaluationTimeRef: (val: BottomSheetRef) => void;
 };
 
 const RootStore = create<RootStore>()((set) => ({
@@ -38,6 +52,13 @@ const RootStore = create<RootStore>()((set) => ({
 	userDetails: null,
 	billboardTypeRef: null,
 	ongoingSubmissionsRef: null,
+	industryRef: null,
+	categoryRef: null,
+	advertiserRef: null,
+	boardConditionRef: null,
+	posterConditionRef: null,
+	trafficSpeedRef: null,
+	evaluationTimeRef: null,
 	alert: {
 		show: false,
 		message: "",
@@ -61,9 +82,20 @@ const RootStore = create<RootStore>()((set) => ({
 		})),
 	setBillboardTypeRef: (val) =>
 		set((state) => ({ ...state, billboardTypeRef: val })),
+	setIndustryRef: (val) => set((state) => ({ ...state, industryRef: val })),
+	setCategoryRef: (val) => set((state) => ({ ...state, categoryRef: val })),
+	setAdvertiserRef: (val) => set((state) => ({ ...state, advertiserRef: val })),
 	setOngoingSubmissionsRef: (val) =>
 		set((state) => ({ ...state, ongoingSubmissionsRef: val })),
 	setUserDetails: (val) => set((state) => ({ ...state, userDetails: val })),
+	setBoardConditionRef: (val) =>
+		set((state) => ({ ...state, boardConditionRef: val })),
+	setPosterConditionRef: (val) =>
+		set((state) => ({ ...state, posterConditionRef: val })),
+	setTrafficSpeedRef: (val) =>
+		set((state) => ({ ...state, trafficSpeedRef: val })),
+	setEvaluationTimeRef: (val) =>
+		set((state) => ({ ...state, evaluationTimeRef: val })),
 }));
 
 const useRootStore = () => RootStore((state) => state);

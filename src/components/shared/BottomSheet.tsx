@@ -62,7 +62,8 @@ export default function BottomSheet({
 				detached={detached}
 				bottomInset={bottomInset}
 				stackBehavior="replace"
-				onDismiss={() => onDismiss()}>
+				onDismiss={() => onDismiss()}
+				enableDynamicSizing={false}>
 				{children}
 			</BottomSheetModal>
 		</BottomSheetModalProvider>
