@@ -26,6 +26,8 @@ type RootStore = {
 	posterConditionRef: BottomSheetRef;
 	trafficSpeedRef: BottomSheetRef;
 	evaluationTimeRef: BottomSheetRef;
+	countriesRef: BottomSheetRef;
+	setCountriesRef: (val: BottomSheetRef) => void;
 	userDetails: User | null;
 	alert: Alert;
 	ongoingSubmissions: SubmissionRequest[];
@@ -59,6 +61,7 @@ const RootStore = create<RootStore>()((set) => ({
 	posterConditionRef: null,
 	trafficSpeedRef: null,
 	evaluationTimeRef: null,
+	countriesRef: null,
 	alert: {
 		show: false,
 		message: "",
@@ -96,6 +99,7 @@ const RootStore = create<RootStore>()((set) => ({
 		set((state) => ({ ...state, trafficSpeedRef: val })),
 	setEvaluationTimeRef: (val) =>
 		set((state) => ({ ...state, evaluationTimeRef: val })),
+	setCountriesRef: (val) => set((state) => ({ ...state, countriesRef: val })),
 }));
 
 const useRootStore = () => RootStore((state) => state);

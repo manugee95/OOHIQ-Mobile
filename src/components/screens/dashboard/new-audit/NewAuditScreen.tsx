@@ -623,18 +623,21 @@ export default function NewAuditScreen({
 									setFieldValue("boardConditionId", val)
 								}
 							/>
+
 							<PosterConditions
 								currentValue={values.posterConditionId}
 								setPosterCondition={(val: number) =>
 									setFieldValue("posterConditionId", val)
 								}
 							/>
+
 							<TrafficSpeeds
 								currentValue={values.trafficSpeedId}
 								setTrafficSpeed={(val: number) =>
 									setFieldValue("trafficSpeedId", val)
 								}
 							/>
+
 							<EvaluationTime
 								currentValue={values.evaluationTimeId}
 								setEvaluationTime={(val: number) =>

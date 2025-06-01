@@ -12,6 +12,7 @@ import useToast from "@/src/hooks/useToast";
 import Loader from "@/src/components/shared/Loader";
 import * as SecureStore from "expo-secure-store";
 import useRootStore from "@/src/hooks/stores/useRootstore";
+import Countries from "@/src/components/shared/countries/Countries";
 
 const schema = Yup.object().shape({
 	email: Yup.string()
@@ -100,53 +101,56 @@ export default function SignupForm() {
 				errors,
 				setFieldValue,
 			}) => (
-				<View className="px-[10px] gap-[15px]">
-					<AppInput
-						label="Full Name"
-						className="!bg-white"
-						placeholder="Full Name"
-						errorMessage={errors.fullName}
-						value={values.fullName}
-						onChange={(val) => setFieldValue("fullName", val)}
-					/>
-					<AppInput
-						label="Email Address"
-						className="!bg-white"
-						placeholder="Email Address"
-						errorMessage={errors.email}
-						value={values.email}
-						onChange={(val) => setFieldValue("email", val)}
-					/>
-					<AppInput.ForPassword
-						label="Password"
-						className="!bg-white"
-						placeholder="Password"
-						errorMessage={errors.password}
-						value={values.password}
-						onChange={(val) => setFieldValue("password", val)}
-					/>
-					<AppInput.ForPassword
-						label="Confirm Password"
-						className="!bg-white"
-						placeholder="Confirm Password"
-						errorMessage={errors.confirmPassword}
-						value={values.confirmPassword}
-						onChange={(val) => setFieldValue("confirmPassword", val)}
-					/>
-					<AppButton
-						onPress={handleSubmit}
-						disabled={!isValidating && isSubmitting}>
-						{!isSubmitting && (
-							<AppText className="text-[17px]" weight="Medium">
-								Sign Up
-							</AppText>
-						)}
-						{isSubmitting && <Loader />}
-					</AppButton>
-					<AppText className="text-center text-[17px]">
-						Already have an account ? Sign In
-					</AppText>
-				</View>
+				<>
+					<View className="px-[10px] gap-[15px]">
+						<AppInput
+							label="Full Name"
+							className="!bg-white"
+							placeholder="Full Name"
+							errorMessage={errors.fullName}
+							value={values.fullName}
+							onChange={(val) => setFieldValue("fullName", val)}
+						/>
+						<AppInput
+							label="Email Address"
+							className="!bg-white"
+							placeholder="Email Address"
+							errorMessage={errors.email}
+							value={values.email}
+							onChange={(val) => setFieldValue("email", val)}
+						/>
+						<AppInput.ForPassword
+							label="Password"
+							className="!bg-white"
+							placeholder="Password"
+							errorMessage={errors.password}
+							value={values.password}
+							onChange={(val) => setFieldValue("password", val)}
+						/>
+						<AppInput.ForPassword
+							label="Confirm Password"
+							className="!bg-white"
+							placeholder="Confirm Password"
+							errorMessage={errors.confirmPassword}
+							value={values.confirmPassword}
+							onChange={(val) => setFieldValue("confirmPassword", val)}
+						/>
+						<AppButton
+							onPress={handleSubmit}
+							disabled={!isValidating && isSubmitting}>
+							{!isSubmitting && (
+								<AppText className="text-[17px]" weight="Medium">
+									Sign Up
+								</AppText>
+							)}
+							{isSubmitting && <Loader />}
+						</AppButton>
+						<AppText className="text-center text-[17px]">
+							Already have an account ? Sign In
+						</AppText>
+					</View>
+					<Countries setCountry={() => {}} currentValue={""} />
+				</>
 			)}
 		</Formik>
 	);

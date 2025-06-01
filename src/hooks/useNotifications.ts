@@ -72,7 +72,7 @@ export default function useNotifications() {
 		if (expoPushToken !== "") {
 			getCredentials()
 				.then(async (credentials: any) => {
-					await ApiInstance.post(
+					await ApiInstance.put(
 						"/api/save-token",
 						{
 							pushToken: expoPushToken,
