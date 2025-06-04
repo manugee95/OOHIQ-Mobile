@@ -35,6 +35,7 @@ export interface Upload {
 	userId: number;
 	videoUrl: string;
 	geolocation: [{ latitude: string; longitude: string }];
+	sovScore: number;
 }
 
 export interface AvailableLocation {

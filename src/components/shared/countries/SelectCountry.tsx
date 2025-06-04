@@ -17,11 +17,9 @@ export default function SelectCountry({
 	const [value, setValue] = useState("");
 
 	useEffect(() => {
-		const data = queryClient.getQueryData(["billboard-types"]);
-
 		if (val !== "") {
 			// @ts-ignore
-			setValue(data?.find((d) => Number(d.id) === Number(val)).name);
+			setValue(val);
 		}
 	}, [val]);
 

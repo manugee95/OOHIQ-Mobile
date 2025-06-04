@@ -14,8 +14,8 @@ export default function Countries({
 	currentValue,
 	setCountry,
 }: {
-	currentValue: string | number;
-	setCountry: (val: number) => void;
+	currentValue: string;
+	setCountry: (val: string) => void;
 }) {
 	const { getCredentials } = useCredentials();
 	const billboardTypeSheet = useRef<BottomSheetModal | null>(null);
@@ -25,14 +25,14 @@ export default function Countries({
 		setCountriesRef(billboardTypeSheet);
 	}, []);
 
-	const { data, isLoading } = useQuery({
+	const { data, isLoading, error } = useQuery({
 		queryKey: ["countries"],
 		queryFn: async () => {
 			const credentials = await getCredentials();
 			const response = await ApiInstance.get("/api/get-countries", {
 				headers: {
 					// @ts-ignore
-					"auth-token": credentials.accessToken,
+					// "auth-token": credentials.accessToken,
 				},
 			});
 
@@ -41,33 +41,35 @@ export default function Countries({
 		retry: false,
 	});
 
+	// console.log(data, error);
+
 	return (
 		<BottomSheet
-			canClose
+			canClose={false}
 			useBackdrop
 			sheetRef={countriesRef}
-			snapPoints={["30%", "30%"]}
-			snapIndex={1}>
+			snapPoints={["60%"]}
+			snapIndex={0}>
 			<BottomSheetView className="flex-1">
 				<BottomSheetFlashList
-					data={isLoading ? [] : data}
+					data={isLoading ? [1, 2, 3, 4, 5] : data}
 					renderItem={({ item }: { item: { id: number; name: string } }) => {
 						return (
 							<Pressable
 								onPress={() => {
-									setCountry(item.id);
+									setCountry(item.name);
 									countriesRef?.current?.dismiss();
 								}}
 								className="p-[10px] py-[20px] border-b border-b-[#ececec] flex-row items-center gap-[10px]">
 								<View
 									className={`w-[14px] h-[14px] rounded-full border items-center justify-center ${
-										Number(item.id) === Number(currentValue)
+										item.name === currentValue
 											? "border-bgBlack"
 											: "border-[#ececec]"
 									}`}>
 									<View
 										className={`w-[8px] h-[8px] rounded-full ${
-											Number(item.id) === Number(currentValue)
+											item.name === currentValue
 												? "bg-bgBlack"
 												: "bg-transparent"
 										}`}></View>

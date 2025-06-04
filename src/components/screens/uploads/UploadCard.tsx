@@ -12,7 +12,7 @@ export default function UploadCard({ item }: { item: Upload }) {
 
 	return (
 		<View className="bg-[#F0F0F0] p-[10px] rounded-[10px] mb-[10px]">
-			<View className="flex-row justify-between items-center pb-[10px] border-b border-b-[#d4d4d4]">
+			<View className="flex-row justify-between items-center">
 				<View className="flex-row  items-center gap-[10px]">
 					<Image
 						source={item.closeShotUrl}
@@ -31,20 +31,22 @@ export default function UploadCard({ item }: { item: Upload }) {
 					<AppText className="text-white">{item.status}</AppText>
 				</AppButton>
 			</View>
-			<View className="flex-row items-center justify-between pt-[10px]">
-				<View className="w-full">
-					<AppButton
-						onPress={() => {
-							setAuditToEvaluate(item);
-							router.push("/uploads/evaluate");
-						}}
-						className="!h-[50px]">
-						<AppText className="text-[15px]" weight="Medium">
-							Evaluate
-						</AppText>
-					</AppButton>
+			{!item.sovScore && (
+				<View className="flex-row items-center justify-between pt-[10px] mt-[10px] border-t border-t-[#d4d4d4]">
+					<View className="w-full">
+						<AppButton
+							onPress={() => {
+								setAuditToEvaluate(item);
+								router.push("/uploads/evaluate");
+							}}
+							className="!h-[50px]">
+							<AppText className="text-[15px]" weight="Medium">
+								Evaluate
+							</AppText>
+						</AppButton>
+					</View>
 				</View>
-			</View>
+			)}
 		</View>
 	);
 }

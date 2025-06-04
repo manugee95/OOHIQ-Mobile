@@ -61,11 +61,9 @@ export default function AuthScreen() {
 					</AppText>
 				</AppButton>
 			</View>
-			<ScrollView className="grow bg-[#F6F6F6]">
-				<View className="pt-[20px] pb-[30px]">
-					{currentTab === "signin" ? <LoginForm /> : <SignupForm />}
-				</View>
-			</ScrollView>
+			<View className="pt-[20px] pb-[30px] grow bg-[#F6F6F6]">
+				{currentTab === "signin" ? <LoginForm /> : <SignupForm />}
+			</View>
 		</View>
 	);
 }

@@ -29,14 +29,14 @@ export default function UploadsScreen() {
 		},
 	});
 
-	// console.log(data);
+	//console.log(data);
 
 	if (isLoading) {
 		return <Loader />;
 	}
 
 	return (
-		<View className="flex-1 bg-white p-[15px]">
+		<View className="flex-1 bg-white px-[15px] py-[15px]">
 			<FlashList
 				onRefresh={async () => {
 					await refetch();
