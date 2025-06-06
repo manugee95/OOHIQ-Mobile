@@ -7,7 +7,7 @@ import { Formik, FormikHelpers } from "formik";
 import * as Yup from "yup";
 import useToast from "@/src/hooks/useToast";
 import useRootStore from "@/src/hooks/stores/useRootstore";
-import { AxiosError } from "axios";
+import axios, { AxiosError } from "axios";
 import ApiInstance from "@/src/utils/api-instance";
 import {
 	getCurrentPositionAsync,
@@ -106,7 +106,7 @@ export default function NewAuditScreen({
 	const [status, requestCameraPermission] = useCameraPermissions();
 	const [micStatus, requestMicPermission] = useMicrophonePermissions();
 
-	const [isGettingLocation, setIsGettingLocation] = useState(!isReaudit);
+	const [isGettingLocation, setIsGettingLocation] = useState(false);
 	const [isTakingVideo, setIsTakingVideo] = useState(false);
 	const [closeShot, setCloseShot] = useState<
 		ImagePickerAsset | MediaLibrary.Asset | null
@@ -126,6 +126,7 @@ export default function NewAuditScreen({
 	useFocusEffect(
 		useCallback(() => {
 			if (!isReaudit) {
+				setIsGettingLocation(true);
 				getForegroundPermissionsAsync().then(async (val) => {
 					if (val.granted) {
 						const { granted } = await MediaLibrary.getPermissionsAsync();
@@ -171,23 +172,31 @@ export default function NewAuditScreen({
 		getCurrentPositionAsync({
 			accuracy: LocationAccuracy.Highest,
 		}).then(async ({ coords }) => {
-			const apiKey = await SecureStore.getItemAsync("googleApiKey");
-			const response = await googleMapClient.reverseGeocode({
-				params: {
-					key: apiKey ?? "",
-					latlng: {
-						longitude: coords.longitude,
-						latitude: coords.latitude,
+			try {
+				const apiKey = await SecureStore.getItemAsync("googleApiKey");
+				const response = await googleMapClient.reverseGeocode({
+					params: {
+						key: apiKey ?? "",
+						latlng: {
+							longitude: coords.longitude,
+							latitude: coords.latitude,
+						},
 					},
-				},
-			});
+				});
 
-			setCurrentLocation(response.data.results[0].formatted_address);
-			setCoordinates({
-				latitude: coords.latitude,
-				longitude: coords.longitude,
-			});
-			setIsGettingLocation(false);
+				// const response = await axios.get(
+				// 	"https://maps.googleapis.com/maps/api/geocode/json?latlng=40.714224,-73.961452&key=YOUR_API_KEY"
+				// );
+
+				setCurrentLocation(response.data.results[0].formatted_address);
+				setCoordinates({
+					latitude: coords.latitude,
+					longitude: coords.longitude,
+				});
+				setIsGettingLocation(false);
+			} catch (error) {
+				console.log(error);
+			}
 		});
 	}
 

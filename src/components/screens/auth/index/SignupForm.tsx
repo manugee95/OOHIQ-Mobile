@@ -3,7 +3,7 @@ import { Formik, FormikHelpers } from "formik";
 import AppButton from "@/src/components/shared/AppButton";
 import AppInput from "@/src/components/shared/form/AppInput";
 import AppText from "@/src/components/shared/AppText";
-import { ScrollView, View } from "react-native";
+import { Pressable, ScrollView, View } from "react-native";
 import * as Yup from "yup";
 import { router } from "expo-router";
 import ApiInstance from "@/src/utils/api-instance";
@@ -36,7 +36,11 @@ export interface SignupData {
 	country: string;
 }
 
-export default function SignupForm() {
+export default function SignupForm({
+	setCurrentTab,
+}: {
+	setCurrentTab: (val: "signin") => void;
+}) {
 	const initialValues: SignupData = {
 		email: "",
 		fullName: "",
@@ -69,7 +73,7 @@ export default function SignupForm() {
 
 			await SecureStore.setItemAsync(
 				"googleApiKey",
-				JSON.stringify(response.data.google_api_key)
+				response.data.google_api_key
 			);
 
 			const response2 = await ApiInstance.get("/user/detail", {
@@ -154,9 +158,14 @@ export default function SignupForm() {
 								)}
 								{isSubmitting && <Loader />}
 							</AppButton>
-							<AppText className="text-center text-[17px]">
-								Already have an account ? Sign In
-							</AppText>
+							<Pressable
+								onPress={() => {
+									setCurrentTab("signin");
+								}}>
+								<AppText className="text-center text-[17px]">
+									Already have an account ? Sign In
+								</AppText>
+							</Pressable>
 						</View>
 					</ScrollView>
 					<Countries

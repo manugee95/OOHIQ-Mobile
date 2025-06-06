@@ -5,7 +5,7 @@ import React from "react";
 export default function newaudit() {
 	return (
 		<Screen>
-			<NewAuditScreen />
+			<NewAuditScreen isReaudit={false} />
 		</Screen>
 	);
 }

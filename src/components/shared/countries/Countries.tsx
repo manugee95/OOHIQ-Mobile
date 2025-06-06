@@ -38,7 +38,7 @@ export default function Countries({
 
 			return response.data;
 		},
-		retry: false,
+		retry: 3,
 	});
 
 	// console.log(data, error);

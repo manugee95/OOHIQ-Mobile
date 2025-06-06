@@ -39,6 +39,7 @@ module.exports = {
 			"android.permission.ACCESS_BACKGROUND_LOCATION",
 			"android.permission.RECORD_AUDIO",
 			"android.permission.CAMERA",
+			"android.permission.INTERNET",
 		],
 		package: "com.oohiq.app",
 		googleServicesFile:

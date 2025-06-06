@@ -62,7 +62,11 @@ export default function AuthScreen() {
 				</AppButton>
 			</View>
 			<View className="pt-[20px] pb-[30px] grow bg-[#F6F6F6]">
-				{currentTab === "signin" ? <LoginForm /> : <SignupForm />}
+				{currentTab === "signin" ? (
+					<LoginForm setCurrentTab={setCurrentTab} />
+				) : (
+					<SignupForm setCurrentTab={setCurrentTab} />
+				)}
 			</View>
 		</View>
 	);

@@ -26,7 +26,11 @@ export interface LoginData {
 	password: string;
 }
 
-export default function LoginForm() {
+export default function LoginForm({
+	setCurrentTab,
+}: {
+	setCurrentTab: (val: "signup") => void;
+}) {
 	const initialValues: LoginData = {
 		email: "",
 		password: "",
@@ -125,9 +129,14 @@ export default function LoginForm() {
 						)}
 						{isSubmitting && <Loader />}
 					</AppButton>
-					<AppText className="text-center text-[17px]">
-						Don’t have an account ? Sign Up
-					</AppText>
+					<Pressable
+						onPress={() => {
+							setCurrentTab("signup");
+						}}>
+						<AppText className="text-center text-[17px]">
+							Don’t have an account ? Sign Up
+						</AppText>
+					</Pressable>
 				</View>
 			)}
 		</Formik>
