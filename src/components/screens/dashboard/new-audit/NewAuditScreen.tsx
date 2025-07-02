@@ -1,7 +1,7 @@
 import AppHeader from "@/src/components/shared/AppHeader";
 import { Stack } from "expo-router";
 import React, { useCallback, useState } from "react";
-import { View } from "react-native";
+import { Modal, View } from "react-native";
 import { useFocusEffect } from "expo-router";
 import { Formik, FormikHelpers } from "formik";
 import * as Yup from "yup";
@@ -51,6 +51,8 @@ import BoardConditions from "@/src/components/shared/board-condition/BoardCondit
 import PosterConditions from "@/src/components/shared/poster-condition/PosterConditions";
 import TrafficSpeeds from "@/src/components/shared/traffic-speed/TrafficSpeeds";
 import EvaluationTime from "@/src/components/shared/evaluation-time/EvaluationTime";
+import CustomImagePicker from "@/src/components/shared/CustomImagePicker";
+import TakingPhoto from "./TakingPhoto";
 
 export type Steps = "details" | "close-shot" | "long-shot" | "video";
 
@@ -59,9 +61,9 @@ export interface NewAuditData {
 	billboardTypeId: number | string;
 	latitude: number | string;
 	longitude: number | string;
-	advertiserId: number | string;
-	categoryId: number | string;
-	industryId: number | string;
+	// advertiserId: number | string;
+	// categoryId: number | string;
+	// industryId: number | string;
 	brand: string;
 	brandIdentifier: string;
 	boardConditionId: string;
@@ -76,9 +78,9 @@ const schema = Yup.object().shape({
 	billboardTypeId: Yup.string().required().label("Billboard Type"),
 	latitude: Yup.number().required().label("Location"),
 	longitude: Yup.number().required().label("Location"),
-	industryId: Yup.string().required().label("Industry"),
-	advertiserId: Yup.string().required().label("Industry"),
-	categoryId: Yup.string().required().label("Category"),
+	// industryId: Yup.string().required().label("Industry"),
+	// advertiserId: Yup.string().required().label("Industry"),
+	// categoryId: Yup.string().required().label("Category"),
 	brand: Yup.string().required().label("Brand"),
 	brandIdentifier: Yup.string().required().label("Brand Identifier"),
 });
@@ -108,12 +110,10 @@ export default function NewAuditScreen({
 
 	const [isGettingLocation, setIsGettingLocation] = useState(false);
 	const [isTakingVideo, setIsTakingVideo] = useState(false);
-	const [closeShot, setCloseShot] = useState<
-		ImagePickerAsset | MediaLibrary.Asset | null
-	>(null);
-	const [longShot, setLongShot] = useState<
-		ImagePickerAsset | MediaLibrary.Asset | null
-	>(null);
+	const [isTakingPhoto, setIsTakingPhoto] = useState(false);
+	const [isPickingImage, setIsPickingImage] = useState(false);
+	const [closeShot, setCloseShot] = useState<string | null>(null);
+	const [longShot, setLongShot] = useState<string | null>(null);
 	const [video, setVideo] = useState<string | null>(null);
 	const [currentLocation, setCurrentLocation] = useState(currentLocationStr);
 	const [currentStep, setCurrentStep] = useState<{ num: number; step: Steps }>({
@@ -184,10 +184,6 @@ export default function NewAuditScreen({
 					},
 				});
 
-				// const response = await axios.get(
-				// 	"https://maps.googleapis.com/maps/api/geocode/json?latlng=40.714224,-73.961452&key=YOUR_API_KEY"
-				// );
-
 				setCurrentLocation(response.data.results[0].formatted_address);
 				setCoordinates({
 					latitude: coords.latitude,
@@ -209,11 +205,11 @@ export default function NewAuditScreen({
 			return;
 		} else {
 			if (type === "close-shot") {
-				setCloseShot(result.assets[0]);
+				setCloseShot(result.assets[0].uri);
 			}
 
 			if (type === "long-shot") {
-				setLongShot(result.assets[0]);
+				setLongShot(result.assets[0].uri);
 			}
 
 			if (type === "video") {
@@ -233,11 +229,11 @@ export default function NewAuditScreen({
 			}
 
 			if (type === "close-shot") {
-				setCloseShot(result.assets[0]);
+				setCloseShot(result.assets[0].uri);
 			}
 
 			if (type === "long-shot") {
-				setLongShot(result.assets[0]);
+				setLongShot(result.assets[0].uri);
 			}
 		} catch (error) {
 			console.log(error);
@@ -262,12 +258,12 @@ export default function NewAuditScreen({
 		if (!granted) {
 			const { granted: mediaGranted } = await requestCameraPermissionsAsync();
 			if (mediaGranted) {
-				ShowCamera(type);
+				setIsTakingPhoto(true);
 			} else {
 				showAndHideToast("Camera Permission not granted", "error");
 			}
 		} else {
-			ShowCamera(type);
+			setIsTakingPhoto(true);
 		}
 	}
 
@@ -305,7 +301,7 @@ export default function NewAuditScreen({
 
 		if (tags && tags.Orientation !== undefined && tags.Orientation !== null) {
 			const path = await RNPhotoManipulator.overlayImage(
-				closeShot?.uri!,
+				closeShot!,
 				watermarkImage,
 				{ x: 20, y: height - 200 },
 				MimeType.PNG
@@ -349,8 +345,8 @@ export default function NewAuditScreen({
 				data.append(key, values[key].toString());
 			});
 
-			const closeAss = await MediaLibrary.createAssetAsync(closeShot?.uri);
-			const longAss = await MediaLibrary.createAssetAsync(longShot?.uri);
+			const closeAss = await MediaLibrary.createAssetAsync(closeShot);
+			const longAss = await MediaLibrary.createAssetAsync(longShot);
 			const videoAss = await MediaLibrary.createAssetAsync(video);
 
 			if (closeAss && longAss && videoAss) {
@@ -436,6 +432,7 @@ export default function NewAuditScreen({
 				setIsSubmitted(true);
 			}
 		} catch (error) {
+			console.log(error);
 			const err = error as AxiosError<any>;
 			showAndHideToast(err.response?.data?.message ?? err.message, "error");
 			setSubmitting(false);
@@ -449,9 +446,9 @@ export default function NewAuditScreen({
 		longitude: coordinates.longitude,
 		brand: "",
 		brandIdentifier: "",
-		industryId: "",
-		advertiserId: "",
-		categoryId: "",
+		// industryId: "",
+		// advertiserId: "",
+		// categoryId: "",
 		boardConditionId: "",
 		posterConditionId: "",
 		trafficSpeedId: "",
@@ -473,9 +470,30 @@ export default function NewAuditScreen({
 							textColor="white"
 						/>
 					),
-					headerShown: !isTakingVideo,
+					headerShown: !isTakingVideo && !isTakingPhoto,
 				}}
 			/>
+
+			{isPickingImage && (
+				<Modal visible={true}>
+					<CustomImagePicker
+						visible={true}
+						cancel={() => {
+							setIsPickingImage(false);
+						}}
+						callback={async (assets) => {
+							try {
+								const ras = await MediaLibrary.getAssetInfoAsync(assets[0]);
+								const tags = await readAsync(ras.localUri ?? "");
+								console.log(ras, tags);
+								// setSiteImages((prev) => [...prev, ...assets]);
+							} catch (error) {
+								console.log(error);
+							}
+						}}
+					/>
+				</Modal>
+			)}
 
 			{isTakingVideo && (
 				<View className="absolute h-full w-[100%] right-0 top-0 z-[999999]">
@@ -485,6 +503,31 @@ export default function NewAuditScreen({
 							setIsTakingVideo(false);
 						}}
 						close={() => setIsTakingVideo(false)}
+					/>
+				</View>
+			)}
+			{isTakingPhoto && (
+				<View className="absolute h-full w-[100%] right-0 top-0 z-[999999]">
+					<TakingPhoto
+						onCaptured={async (val) => {
+							try {
+								// const fil = await MediaLibrary.createAssetAsync(val);
+								// const ras = await MediaLibrary.getAssetInfoAsync(fil);
+								// const tags = await readAsync(ras.localUri ?? "");
+								// console.log(ras, tags);
+								if (currentStep.step === "close-shot") {
+									setCloseShot(val);
+								}
+
+								if (currentStep.step === "long-shot") {
+									setLongShot(val);
+								}
+							} catch (error) {
+								console.log(error);
+							}
+							setIsTakingPhoto(false);
+						}}
+						close={() => setIsTakingPhoto(false)}
 					/>
 				</View>
 			)}
@@ -533,7 +576,9 @@ export default function NewAuditScreen({
 
 							{currentStep.step === "close-shot" && (
 								<CloseShot
-									PickImage={PickImage}
+									PickImage={() => {
+										setIsPickingImage(true);
+									}}
 									onCloseShot={async () => {
 										if (!closeShot) {
 											showAndHideToast(
@@ -554,7 +599,9 @@ export default function NewAuditScreen({
 
 							{currentStep.step === "long-shot" && (
 								<LongShot
-									PickImage={PickImage}
+									PickImage={() => {
+										setIsPickingImage(true);
+									}}
 									onLongShot={async () => {
 										if (!longShot) {
 											showAndHideToast(
@@ -591,7 +638,7 @@ export default function NewAuditScreen({
 										{isSubmitting && <Loader />}
 										{!isSubmitting && (
 											<AppText className="text-[17px]" weight="Medium">
-												Continue
+												Continue {JSON.stringify(errors)}
 											</AppText>
 										)}
 									</AppButton>
@@ -605,7 +652,7 @@ export default function NewAuditScreen({
 								}
 							/>
 
-							<Industries
+							{/* <Industries
 								currentValue={values.industryId}
 								setIndustry={(val: number) => {
 									setFieldValue("industryId", val);
@@ -624,7 +671,7 @@ export default function NewAuditScreen({
 								currentValue={values.categoryId}
 								setCategory={(val: number) => setFieldValue("categoryId", val)}
 								industryId={values.industryId}
-							/>
+							/> */}
 
 							<BoardConditions
 								currentValue={values.boardConditionId}

@@ -49,7 +49,7 @@ export default function AuditDetails({
 					errorMessage={errors.evaluationTimeId}
 					val={values.evaluationTimeId}
 				/>
-				<SelectAdvertiser
+				{/* <SelectAdvertiser
 					errorMessage={errors.advertiserId}
 					val={values.advertiserId}
 				/>
@@ -61,7 +61,7 @@ export default function AuditDetails({
 					errorMessage={errors.categoryId}
 					val={values.categoryId}
 					industryId={values.industryId}
-				/>
+				/> */}
 				<AppInput
 					label="Brand"
 					className="!bg-transparent border !border-[#ececec] focus:!border-primary"

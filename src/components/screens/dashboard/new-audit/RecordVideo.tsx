@@ -42,9 +42,7 @@ export default function RecordVideo({
 							Video Recording
 						</AppText>
 						<AppText className="text-[14px] text-[#8d8d8d]">
-							Please capture a Straight-On View of the Billboard. The camera
-							should face the billboard directly, and the edges should appear
-							straight and symmetrical.
+							Please record the board surrounding.
 						</AppText>
 					</View>
 				</View>

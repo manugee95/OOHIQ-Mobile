@@ -13,7 +13,7 @@ interface LongShotProps {
 	PickImage: (val: Steps) => void;
 	TakeLongShot: () => void;
 	onLongShot: () => void;
-	currentShot: ImagePickerAsset | null;
+	currentShot: string | null;
 	back?: () => void;
 }
 export default function LongShot({
@@ -67,7 +67,7 @@ export default function LongShot({
 				{currentShot && (
 					<View className="rounded-[10px] overflow-hidden">
 						<Image
-							source={currentShot?.uri}
+							source={`file://${currentShot}`}
 							style={{ width: "100%", height: 180 }}
 						/>
 					</View>
